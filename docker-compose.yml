@@ -1,7 +1,7 @@
 services:
   zedge-backend:
     build:
-      context: ./zedge-backend-main
+      context: ./zedge-backend
       dockerfile: Dockerfile
     container_name: zedge-backend
     restart: unless-stopped
@@ -13,21 +13,18 @@ services:
       INQUIRY_RECEIVER_EMAIL: ${INQUIRY_RECEIVER_EMAIL:-}
       BREVO_DEV_FALLBACK: ${BREVO_DEV_FALLBACK:-false}
     ports:
-      - "13.233.214.246:5000:5000"
+      - "5050:5000"
     networks:
       - zedge-network
 
   zedge-frontend:
     build:
-      context: ./zedge-frontend-main
+      context: ./zedge-frontend
       dockerfile: Dockerfile
     container_name: zedge-frontend
     restart: unless-stopped
-    environment:
-      PORT: "3000"
-      API_BASE_URL: ${API_BASE_URL:-http://13.233.214.246:5000}
     ports:
-      - "13.233.214.246:80:3000"
+      - "80:3000"
     depends_on:
       - zedge-backend
     networks:
