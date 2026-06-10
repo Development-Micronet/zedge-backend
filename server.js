@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
+const rateLimit = require("express-rate-limit");
 const { BrevoClient } = require("@getbrevo/brevo");
 
 const app = express();
@@ -19,6 +20,18 @@ app.use(cors(
     credentials: true,}
 ));
 app.use(express.json());
+
+const inquiryLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 3, // max 3 form submissions
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message:
+      "Too many inquiries submitted. Please try again after 15 minutes.",
+  },
+});
 
 app.get("/", (req, res) => {
   res.send(`
@@ -90,7 +103,7 @@ function getBrevoErrorMessage(error) {
     : "Failed to send email";
 }
 
-app.post("/send-inquiry", async (req, res) => {
+app.post("/send-inquiry", inquiryLimiter, async (req, res) => {
   try {
     const inquiry = {
       source: clean(req.body.source) || "Website form",
@@ -182,6 +195,19 @@ app.post("/send-inquiry", async (req, res) => {
       message: errorMessage,
     });
   }
+});
+
+
+const inquiryLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message:
+      "You have reached the maximum number of inquiries. Please try again later.",
+  },
 });
 
 const server = app.listen(PORT, () => {
