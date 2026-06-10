@@ -9,7 +9,15 @@ const PORT = process.env.PORT || 5000;
 const IS_DEVELOPMENT = process.env.NODE_ENV !== "production";
 const USE_BREVO_DEV_FALLBACK = process.env.BREVO_DEV_FALLBACK === "true";
 
-app.use(cors());
+app.use(cors(
+  { origin: [
+      "http://localhost:5500", // Vite
+      "http://localhost:3000", // React
+      "https://z-edge.in",
+    ],
+    methods: ["GET", "POST"],
+    credentials: true,}
+));
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -47,6 +55,9 @@ app.get("/health", (req, res) => {
     port: PORT,
   });
 });
+
+
+
 
 function clean(value) {
   return typeof value === "string" ? value.trim() : "";
